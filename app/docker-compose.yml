@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  flask-app:
+    build: .
+    container_name: flask-app
+    depends_on:
+      - db  
+    environment:
+      - FLASK_APP=main.py  
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://user:password@db:5432/mydatabase 
+    ports:
+      - "5000:5000"
+    networks:
+      - flask-network
+    restart: on-failure  
+
+  db:
+    image: postgres:13
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - flask-network
+    restart: always
+
+networks:
+  flask-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
